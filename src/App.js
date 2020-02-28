@@ -10,11 +10,15 @@ import {useState} from 'react';
 import './App.css';
 
 const DEFAULT_QUERY = 'javascript';
+const DEFAULT_HPP = '10'; // to control the num of hits 20 or 100 or 50
+
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
+const PARAM_PAGE = 'page=';
+const PARAM_HPP = 'hitsPerPage='; // to control the num of hits 20 or 100 or 50
 
-// URL 
+// URL
 const url =  `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
 
 const Test = () => {
@@ -97,11 +101,20 @@ class App extends Component {
 
   // it's for change the value of searchTerm depending on the input field value
   setSearchTopStories(result) {
-    this.setState({ result })
+    // let's show all pages instead of the just last page
+    const {hits, page} = result
+    // if the page is 0 return rmptey array ==== if the page not equal 0 return the current hits in result
+    const oldHits = page !== 0 ? this.state.result.hits : [];
+    // concat all the old hits from the previose const with the hits witch comes back in result from last fetch
+    const updatedHits = [...oldHits, ...hits];
+    //Update the state
+    this.setState({
+      result: {hits: updatedHits, page}
+    })
   }
 
-  fetchSearchTopStories(searchTerm) {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}`)
+  fetchSearchTopStories(searchTerm, page = 0) {
+    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
     .then(Response => Response.json()) // trabnsform the response to JSON data structure
     .then(result => this.setSearchTopStories(result)) // set the JSON data as a result in the local component state
     .catch(error => error) // if an error occurs
@@ -116,7 +129,6 @@ class App extends Component {
   componentDidMount() {
     const { searchTerm } = this.state
     this.fetchSearchTopStories(searchTerm)
-
   }
 
   onSearchChange(event) {
@@ -139,7 +151,8 @@ class App extends Component {
 
   render() {
     const {result, searchTerm} = this.state;
-    console.log('Render()')
+    const page = (result && result.page) || 0; // Didn't understand this line what doing
+    console.log(this.state.result)
 
     // if(!result) {return <Loading />;}
 
@@ -151,7 +164,7 @@ class App extends Component {
           onChange={this.onSearchChange} // onChange proparte
           onSubmit={this.onSearchSubmit}
         >
-        Search
+        Search Fucker
         </Search>
       </div>
       {result ?
@@ -162,6 +175,13 @@ class App extends Component {
         /> :
         <Loading />
         }
+        <div className='interactions'>
+          <Button
+            onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}
+          >
+            More
+          </Button>
+        </div>
         <Test />
       </div>
     )
