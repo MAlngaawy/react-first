@@ -9,14 +9,17 @@ import React, {Component} from 'react';
 import {useState} from 'react';
 import './App.css';
 
-const DEFAULT_QUERY = 'javascript';
+// You can learn everything about the next by going to (https://hn.algolia.com/api)
+const DEFAULT_QUERY = 'javaScript';
 const DEFAULT_HPP = '10'; // to control the num of hits 20 or 100 or 50
 
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
-const PATH_SEARCH = '/search';
-const PARAM_SEARCH = 'query=';
-const PARAM_PAGE = 'page=';
+const PATH_SEARCH = '/search'; // Sorted by relevance, then points, then number of comments
+const PARAM_SEARCH = 'query='; // full-text query ==> i set bydefault to "javaScript"
+const PARAM_PAGE = 'page='; // the number of page
 const PARAM_HPP = 'hitsPerPage='; // to control the num of hits 20 or 100 or 50
+
+// `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
 
 // URL
 const url =  `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
@@ -88,10 +91,12 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: null,
+      results: null,
+      searchKey: '',
       searchTerm: DEFAULT_QUERY,
     };
 
+    this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this)
     this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this)
     this.setSearchTopStories = this.setSearchTopStories.bind(this)
     this.onSearchChange = this.onSearchChange.bind(this)
@@ -99,17 +104,27 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this)
   }
 
+  // Check if the search tern is already in the results map or not if it's Not return (True) 
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm]
+  }
+
   // it's for change the value of searchTerm depending on the input field value
   setSearchTopStories(result) {
     // let's show all pages instead of the just last page
     const {hits, page} = result
+    const {searchKey, results} = this.state; // retrieve the searchKey from the component state.
     // if the page is 0 return rmptey array ==== if the page not equal 0 return the current hits in result
-    const oldHits = page !== 0 ? this.state.result.hits : [];
+    // this time the old hits get retrieved from the results map with the searchKey as key.
+    const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
     // concat all the old hits from the previose const with the hits witch comes back in result from last fetch
     const updatedHits = [...oldHits, ...hits];
     //Update the state
     this.setState({
-      result: {hits: updatedHits, page}
+      results: {
+        ...results,
+        [searchKey]: {hits: updatedHits, page} // ({[JavaScript objects are really dictionaries]}) ==> results[javaScript] : {hits: updatedHits, page}
+      }
     })
   }
 
@@ -122,12 +137,17 @@ class App extends Component {
 
   onSearchSubmit(event) {
     const {searchTerm} = this.state;
-    this.fetchSearchTopStories(searchTerm)
+    this.setState({searchKey: searchTerm})
+    // Only search if it's not in the results map
+    if(this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm)
+    }
     event.preventDefault();
   }
   
   componentDidMount() {
     const { searchTerm } = this.state
+    this.setState({searchKey: searchTerm})
     this.fetchSearchTopStories(searchTerm)
   }
 
@@ -142,17 +162,21 @@ class App extends Component {
   }
 */
   onDismiss(id) {
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
     const isNotId = item => item.objectID !== id;
-    const updatedHits = this.state.result.hits.filter(isNotId);
+    const updatedHits = hits.filter(isNotId);
     this.setState({
-      result: {...this.state.result, hits: updatedHits}
+      results: {...results, [searchKey]: {hits: updatedHits, page}}
     })
   }
 
   render() {
-    const {result, searchTerm} = this.state;
-    const page = (result && result.page) || 0; // Didn't understand this line what doing
-    console.log(this.state.result)
+    const {results, searchTerm, searchKey} = this.state;
+    const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==> 
+    const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==> 
+    console.log(this.state.results) // when you search about (javaScript , react ) == > {javaScript: {…}, react: {…}}
 
     // if(!result) {return <Loading />;}
 
@@ -167,9 +191,9 @@ class App extends Component {
         Search Fucker
         </Search>
       </div>
-      {result ?
+      {results ?
         <Table
-          list={result.hits} // list proparte
+          list={list} // list proparte
           onDismiss={this.onDismiss} // onDismiss proparte
           // plusPoints={this.plusPoints}
         /> :
@@ -177,7 +201,7 @@ class App extends Component {
         }
         <div className='interactions'>
           <Button
-            onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
           >
             More
           </Button>
