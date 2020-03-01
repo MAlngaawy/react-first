@@ -138,9 +138,8 @@ class App extends Component {
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
-    .then(Response => Response.json()) // trabnsform the response to JSON data structure
-    .then(result => this.setSearchTopStories(result)) // set the JSON data as a result in the local component state
+    axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
+    .then(result => this.setSearchTopStories(result.data)) // set the JSON data as a result in the local component state
     .catch(error => this.setState({error})) // if an error occurs
   }
 
