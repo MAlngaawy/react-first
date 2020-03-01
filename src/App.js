@@ -7,6 +7,7 @@
 */
 import React, {Component} from 'react';
 import {useState} from 'react';
+import axios from 'axios';
 import './App.css';
 
 // You can learn everything about the next by going to (https://hn.algolia.com/api)
@@ -52,10 +53,17 @@ const Search = ({value, onChange,onSubmit, children}) => // ({this.Props})
         </button>
       </form>
 
+// if u want ti use it .. set it in Table components
 const Loading = () =>
-<div> 
-<h1 className='loading'>Waite MotherFuckr</h1>
-</div>
+      <div className='loading'> 
+        <h1 className='loading'>Waite MotherFuckr</h1>
+      </div>
+
+// Error Component
+const ErrorHandle = () => 
+      <div className='errorhandle'>
+        <h1>Something Went Wrong.</h1>
+      </div>
 
 const Table = ({list, onDismiss, plusPoints}) => 
       <div className='table'>
@@ -94,6 +102,7 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
+      error: null
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this)
@@ -132,7 +141,7 @@ class App extends Component {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
     .then(Response => Response.json()) // trabnsform the response to JSON data structure
     .then(result => this.setSearchTopStories(result)) // set the JSON data as a result in the local component state
-    .catch(error => error) // if an error occurs
+    .catch(error => this.setState({error})) // if an error occurs
   }
 
   onSearchSubmit(event) {
@@ -173,12 +182,10 @@ class App extends Component {
   }
 
   render() {
-    const {results, searchTerm, searchKey} = this.state;
+    const {results, searchTerm, searchKey, error} = this.state;
     const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==> 
     const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==> 
     console.log(this.state.results) // when you search about (javaScript , react ) == > {javaScript: {…}, react: {…}}
-
-    // if(!result) {return <Loading />;}
 
     return (
       <div className='page' >
@@ -191,12 +198,15 @@ class App extends Component {
         Search Fucker
         </Search>
       </div>
-      {results ?
-        <Table
+        {results?
+          <Table
           list={list} // list proparte
           onDismiss={this.onDismiss} // onDismiss proparte
           // plusPoints={this.plusPoints}
-        /> :
+        />
+        :error?
+        <ErrorHandle />
+        :
         <Loading />
         }
         <div className='interactions'>
