@@ -4,6 +4,8 @@
  3 ==> there is no way in react to set props == Props are read-only.
  4 ==> props are only used to pass data from one component to another component React, but only from parent to child components down the component tree.
  5 ==> lifecycle methods Just "componentDidMount()" method use to ({fech Date})
+ 6 ==> Unit tests === Libr -> Enzyme
+ 7 ==> snapshot tests === Libr -> Jest >> used for component tests // create-react-app already comes with Jest
 */
 import React, {Component} from 'react';
 import {useState} from 'react';
@@ -184,7 +186,6 @@ class App extends Component {
     const {results, searchTerm, searchKey, error} = this.state;
     const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==> 
     const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==> 
-    console.log(this.state.results) // when you search about (javaScript , react ) == > {javaScript: {…}, react: {…}}
 
     return (
       <div className='page' >
@@ -222,3 +223,9 @@ class App extends Component {
 }
 
 export default App;
+
+export {
+  Button,
+  Search,
+  Table,
+};
