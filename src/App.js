@@ -10,6 +10,7 @@
 import React, {Component} from 'react';
 import {useState} from 'react';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 import './App.css';
 
 // You can learn everything about the next by going to (https://hn.algolia.com/api)
@@ -55,6 +56,13 @@ const Search = ({value, onChange,onSubmit, children}) => // ({this.Props})
         </button>
       </form>
 
+      Search.propTypes = {
+        value: PropTypes.string,
+        onChange: PropTypes.func.isRequired,
+        onSubmit: PropTypes.func.isRequired,
+        children: PropTypes.string
+      };
+
 // if u want ti use it .. set it in Table components
 const Loading = () =>
       <div className='loading'> 
@@ -87,7 +95,33 @@ const Table = ({list, onDismiss, plusPoints}) =>
         )}
       </div>
 
-const Button = ({onClick, className='', children}) =>
+      // define a PropType interface for the Table component
+      Table.propTypes = {
+        list: PropTypes.array.isRequired,
+        onDismiss: PropTypes.func.isRequired,
+      };
+      // You can define the content of an array PropType more explicitly Like This
+      /*
+      Table.PropTypes = {
+        list:PropTypes.arrayOf(
+          PropTypes.shape({
+            objectID: PropTypes.string.isRequired,
+            author: PropTypes.string,
+            url: PropTypes.string,
+            num_comments: PropTypes.number,
+            points: PropTypes.number
+          })
+        ).isRequired,
+        onDismiss: PropTypes.func.isRequired,
+      };
+
+      ===== Only the objectID is required, because some of the code depends on it
+      */
+
+
+
+
+const Button = ({onClick, className, children}) =>
       <button
         onClick={onClick}
         className={className}
@@ -95,6 +129,19 @@ const Button = ({onClick, className='', children}) =>
       >
         {children}
       </button>
+
+      // Component Interface with PropTypes
+      // we want to take every argument from the function signature and assign a PropType to it.
+      Button.propTypes = {
+        onClick: PropTypes.func.isRequired, // it's mean that it's nutt alowed to be null or undefined
+        className: PropTypes.string, // Not required Cuz it can default to an empty string
+        children: PropTypes.node.isRequired, // it's mean that it's nutt alowed to be null or undefine
+      };
+
+      // We Can set default props loke this
+      Button.defaultProps = {
+        className: '',
+      };
 
 
 class App extends Component {
