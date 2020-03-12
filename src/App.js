@@ -65,21 +65,21 @@ const Search = ({value, onChange,onSubmit, children}) => // ({this.Props})
 
 // if u want ti use it .. set it in Table components
 const Loading = () =>
-      <div className='loading'> 
+      <div className='loading'>
         <h1 className='loading'>Waite MotherFuckr</h1>
       </div>
 
 // Error Component
-const ErrorHandle = () => 
+const ErrorHandle = () =>
       <div className='errorhandle'>
         <h1>Something Went Wrong.</h1>
       </div>
 
-const Table = ({list, onDismiss, plusPoints}) => 
+const Table = ({list, onDismiss, plusPoints}) =>
       <div className='table'>
-        {list.map(item => 
+        {list.map(item =>
           <div key={item.objectID} className='table-row'>
-          <span style={{ width: '40%' }}> 
+          <span style={{ width: '40%' }}>
               <a href={item.url} target='_blank'>{item.title}</a>
             </span>
             <span style={{ width: '30%' }}> {item.author} </span>
@@ -124,7 +124,7 @@ const Table = ({list, onDismiss, plusPoints}) =>
 const Button = ({onClick, className, children}) =>
       <button
         onClick={onClick}
-        className={className}
+        className={className} 
         type='button'
       >
         {children}
@@ -162,7 +162,7 @@ class App extends Component {
     this.onDismiss = this.onDismiss.bind(this)
   }
 
-  // Check if the search tern is already in the results map or not if it's Not return (True) 
+  // Check if the search tern is already in the results map or not if it's Not return (True)
   needsToSearchTopStories(searchTerm) {
     return !this.state.results[searchTerm]
   }
@@ -201,7 +201,7 @@ class App extends Component {
     }
     event.preventDefault();
   }
-  
+
   componentDidMount() {
     const { searchTerm } = this.state
     this.setState({searchKey: searchTerm})
@@ -231,8 +231,8 @@ class App extends Component {
 
   render() {
     const {results, searchTerm, searchKey, error} = this.state;
-    const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==> 
-    const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==> 
+    const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==>
+    const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==>
 
     return (
       <div className='page' >
