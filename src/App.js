@@ -43,19 +43,33 @@ const Test = () => {
 }
 
 
-// now we use (functional stateless component) instead of (ES6 class components)
-const Search = ({value, onChange,onSubmit, children}) => // ({this.Props})
+class Search extends Component {
+
+// Using REF ATTRIBUTE
+  componentDidMount() {
+    if (this.input) { // Target the input
+      this.input.focus(); // Trigger the Focuse method in the input ref
+    }
+  }
+
+  render() {
+    const {value, onChange,onSubmit, children} = this.props;
+
+    return (
       <form onSubmit={onSubmit}>
         <input
           type="text"
           value={value}
           onChange={onChange}
+          ref={el => this.input = el} // Ref the DOM Element ==> REF ATTRIBUTE
         />
         <button type='submit'>
           {children}
         </button>
       </form>
-
+    );
+  }
+}
       Search.propTypes = {
         value: PropTypes.string,
         onChange: PropTypes.func.isRequired,
@@ -63,7 +77,8 @@ const Search = ({value, onChange,onSubmit, children}) => // ({this.Props})
         children: PropTypes.string
       };
 
-// if u want ti use it .. set it in Table components
+// if u want to use it .. set it in Table components
+// now we use (functional stateless component) instead of (ES6 class components)
 const Loading = () =>
       <div className='loading'>
         <h1 className='loading'>Waite MotherFuckr</h1>
@@ -124,7 +139,7 @@ const Table = ({list, onDismiss, plusPoints}) =>
 const Button = ({onClick, className, children}) =>
       <button
         onClick={onClick}
-        className={className} 
+        className={className}
         type='button'
       >
         {children}
