@@ -10,5 +10,6 @@
 .button-inline { border-width: 0; background: transparent; color: inherit; text-align: inherit; -webkit-font-smoothing: inherit; padding: 0; font-size: inherit; cursor: pointer; }
 .button-active { border-radius: 0; border-bottom: 1px solid #38BB6C; }
 .loading{font-size: 50px; text-align: center;}
+.loading .angry {font-size: 100px; color: #215489; margin-bottom: 20px}
 .errorhandle{text-align: center; width: fit-content; margin: 30px auto;}
 .errorhandle h1 {background-color: red; padding: 10px; color: #ffffff; border-radius: 10px;}

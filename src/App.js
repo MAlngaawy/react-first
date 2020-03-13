@@ -12,6 +12,8 @@ import {useState} from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import './App.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngry } from '@fortawesome/free-solid-svg-icons';
 
 // You can learn everything about the next by going to (https://hn.algolia.com/api)
 const DEFAULT_QUERY = 'javaScript';
@@ -82,6 +84,7 @@ class Search extends Component {
 const Loading = () =>
       <div className='loading'>
         <h1 className='loading'>Waite MotherFuckr</h1>
+        <FontAwesomeIcon className="angry" icon={faAngry} />
       </div>
 
 // Error Component
