@@ -44,6 +44,16 @@ const Test = () => {
   )
 }
 
+//_________//
+// Ex HOC (Heigher Order Component)
+function withFeature(Component) {
+  return function(props) {
+    return <Component {...props} />;
+  }
+}
+const withEnhancement = (Component) => (props) =>
+      <Component {...props} />
+//_________//
 
 class Search extends Component {
 
@@ -78,14 +88,6 @@ class Search extends Component {
         onSubmit: PropTypes.func.isRequired,
         children: PropTypes.string
       };
-
-// if u want to use it .. set it in Table components
-// now we use (functional stateless component) instead of (ES6 class components)
-const Loading = () =>
-      <div className='loading'>
-        <h1 className='loading'>Waite MotherFuckr</h1>
-        <FontAwesomeIcon className="angry" icon={faAngry} />
-      </div>
 
 // Error Component
 const ErrorHandle = () =>
@@ -136,9 +138,6 @@ const Table = ({list, onDismiss, plusPoints}) =>
       ===== Only the objectID is required, because some of the code depends on it
       */
 
-
-
-
 const Button = ({onClick, className, children}) =>
       <button
         onClick={onClick}
@@ -161,6 +160,21 @@ const Button = ({onClick, className, children}) =>
         className: '',
       };
 
+      // now we use (functional stateless component) instead of (ES6 class components)
+      const Loading = () =>
+            <div className='loading'>
+              <h1 className='loading'>Waite MotherFuckr</h1>
+              <FontAwesomeIcon className="angry" icon={faAngry} />
+            </div>
+
+      // HOC with Loading
+      const withLoading = (Component) => ({isLoading, ...rest}) =>
+        isLoading
+          ? <Loading />
+          : <Component {...rest} />
+
+// Apply HOC in the Button Component
+const ButtonWithLoading = withLoading(Button);
 
 class App extends Component {
   constructor(props) {
@@ -169,7 +183,8 @@ class App extends Component {
       results: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
-      error: null
+      error: null,
+      isLoading: false
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this)
@@ -200,11 +215,13 @@ class App extends Component {
       results: {
         ...results,
         [searchKey]: {hits: updatedHits, page} // ({[JavaScript objects are really dictionaries]}) ==> results[javaScript] : {hits: updatedHits, page}
-      }
-    })
+      },
+      isLoading: false
+    });
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
+    this.setState({isLoading: true});
     axios(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`)
     .then(result => this.setSearchTopStories(result.data)) // set the JSON data as a result in the local component state
     .catch(error => this.setState({error})) // if an error occurs
@@ -248,7 +265,7 @@ class App extends Component {
   }
 
   render() {
-    const {results, searchTerm, searchKey, error} = this.state;
+    const {results, searchTerm, searchKey, error, isLoading} = this.state;
     const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==>
     const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==>
 
@@ -275,11 +292,12 @@ class App extends Component {
         <Loading />
         }
         <div className='interactions'>
-          <Button
+          <ButtonWithLoading
+            isLoading = {isLoading}
             onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
           >
             More
-          </Button>
+          </ButtonWithLoading>
         </div>
         <Test />
       </div>
