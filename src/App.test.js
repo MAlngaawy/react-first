@@ -1,5 +1,5 @@
-// This File comes for testing 
-/* 
+// This File comes for testing
+/*
   Some Notes about unit testing
   1: Enzyme provides a mechanism to mount and traverse React.js component trees. This will help us get access to its own properties and state as well as its children props in order to run our assertions.
   2: toBe uses Object.is to test exact equality
@@ -55,6 +55,8 @@ describe('Table', () => {
       {title: '1', author: '1', num_comments: 1, points: 2, objectID: 'y'},
       {title: '2', author: '2', num_comments: 1, points: 2, objectID: 'z'},
     ],
+    sortKey: 'TITLE',
+    isSortReverse: false,
   };
 
   it('renders without crashing', () => {
@@ -92,11 +94,11 @@ describe('App', () => {
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
-  
+
 });
 
 
-// This what i found in the file 
+// This what i found in the file
 /*
 test('renders learn react link', () => {
   const { getByText } = render(<App />);

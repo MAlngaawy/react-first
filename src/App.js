@@ -10,8 +10,12 @@
 import React, {Component} from 'react';
 import {useState} from 'react';
 import axios from 'axios';
+import { sortBy } from 'lodash';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import './App.css';
+
+// it's for font awesome in react
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngry } from '@fortawesome/free-solid-svg-icons';
 
@@ -95,9 +99,47 @@ const ErrorHandle = () =>
         <h1>Something Went Wrong.</h1>
       </div>
 
-const Table = ({list, onDismiss, plusPoints}) =>
+const Sort = ({sortKey, onSort, children, activeSortKey}) => {
+  const sortClass =  classNames('button-inline', {'button-active': sortKey === activeSortKey});
+
+  return (
+  <Button onClick={() => onSort(sortKey)} className={sortClass}>
+    {children}
+  </Button>
+  );
+}
+
+const Table = ({list, onDismiss, plusPoints, onSort, sortKey, isSortReverse}) => {
+    const sortedList = SORTS[sortKey](list);
+    const reverseSortedList = isSortReverse
+    ? sortedList.reverse()
+    : sortedList;
+    return (
+
+
       <div className='table'>
-        {list.map(item =>
+        <div className='table-header'>
+          <span style={{width: '40%'}}>
+            <Sort sortKey={'TITLE'} onSort={onSort} activeSortKey={sortKey}> </Sort>
+            Title
+          </span>
+          <span style={{width: '30%'}}>
+            <Sort sortKey={'AUTHOR'} onSort={onSort} activeSortKey={sortKey}> </Sort>
+            Author
+          </span>
+          <span style={{width: '10%'}}>
+            <Sort sortKey={'COMMENTS'} onSort={onSort} activeSortKey={sortKey}> </Sort>
+            Comments
+          </span>
+          <span style={{width: '10%'}}>
+            <Sort sortKey={'POINTS'} onSort={onSort} activeSortKey={sortKey}> </Sort>
+            Points
+          </span>
+          <span style={{width: '10%'}}>
+            Archive
+          </span>
+        </div>
+        {reverseSortedList.map(item =>
           <div key={item.objectID} className='table-row'>
           <span style={{ width: '40%' }}>
               <a href={item.url} target='_blank'>{item.title}</a>
@@ -114,7 +156,8 @@ const Table = ({list, onDismiss, plusPoints}) =>
           </div>
         )}
       </div>
-
+    );
+}
       // define a PropType interface for the Table component
       Table.propTypes = {
         list: PropTypes.array.isRequired,
@@ -176,6 +219,14 @@ const Button = ({onClick, className, children}) =>
 // Apply HOC in the Button Component
 const ButtonWithLoading = withLoading(Button);
 
+const SORTS = {
+  NONE: list => list,
+  TITLE: list => sortBy(list, 'title'),
+  AUTHOR: list => sortBy(list, 'author'),
+  COMMENTS: list => sortBy(list, 'num_comments').reverse(),
+  POINTS: list => sortBy(list, 'points').reverse(),
+};
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -184,7 +235,9 @@ class App extends Component {
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
       error: null,
-      isLoading: false
+      isLoading: false,
+      sortKey: 'NONE',
+      isSortReverse: false
     };
 
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this)
@@ -193,6 +246,7 @@ class App extends Component {
     this.onSearchChange = this.onSearchChange.bind(this)
     this.onSearchSubmit = this.onSearchSubmit.bind(this)
     this.onDismiss = this.onDismiss.bind(this)
+    this.onSort = this.onSort.bind(this)
   }
 
   // Check if the search tern is already in the results map or not if it's Not return (True)
@@ -264,8 +318,13 @@ class App extends Component {
     })
   }
 
+  onSort(sortKey) {
+    const isSortReverse = this.state.sortKey === sortKey && !this.state.isSortReverse;
+    this.setState({ sortKey, isSortReverse });
+  }
+
   render() {
-    const {results, searchTerm, searchKey, error, isLoading} = this.state;
+    const {results, searchTerm, searchKey, error, isLoading, sortKey, isSortReverse} = this.state;
     const page = (results && results[searchKey] && results[searchKey].page) || 0; // set the page proparty ==>
     const list = (results && results[searchKey] && results[searchKey].hits) || []; // set the page proparty ==>
 
@@ -283,6 +342,9 @@ class App extends Component {
         {results?
           <Table
           list={list} // list proparte
+          sortKey={sortKey}
+          onSort={this.onSort}
+          isSortReverse= {isSortReverse}
           onDismiss={this.onDismiss} // onDismiss proparte
           // plusPoints={this.plusPoints}
         />

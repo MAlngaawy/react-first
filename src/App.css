@@ -1,4 +1,5 @@
 .page { margin: 20px; }
+button {cursor: pointer;}
 .interactions { text-align: center; }
 .table { margin: 20px 0; }
 .table-header { display: flex; line-height: 24px; font-size: 16px; padding: 0 10px; justify-content: space-between; }
