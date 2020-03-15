@@ -32,7 +32,7 @@ const PARAM_HPP = 'hitsPerPage='; // to control the num of hits 20 or 100 or 50
 // `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
 
 // URL
-const url =  `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
+// const url =  `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}`;
 
 const Test = () => {
   const [value, setValue] = useState('Hello World') // Used Hookes Here instead of useState Function
@@ -223,7 +223,6 @@ const Button = ({onClick, className, children}) =>
       // now we use (functional stateless component) instead of (ES6 class components)
       const Loading = () =>
             <div className='loading'>
-              <h1 className='loading'>Waite MotherFuckr</h1>
               <FontAwesomeIcon className="angry" icon={faAngry} />
             </div>
 
@@ -243,6 +242,22 @@ const SORTS = {
   COMMENTS: list => sortBy(list, 'num_comments').reverse(),
   POINTS: list => sortBy(list, 'points').reverse(),
 };
+
+const updateSearchTopStoriesState = (hits, page) => (prevState) => {
+  const {searchKey, results} = prevState; // retrieve the searchKey from the component state.
+  // if the page is 0 return rmptey array ==== if the page not equal 0 return the current hits in result
+  // this time the old hits get retrieved from the results map with the searchKey as key.
+  const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
+  // concat all the old hits from the previose const with the hits witch comes back in result from last fetch
+  const updatedHits = [...oldHits, ...hits];
+  return {
+  results: {
+    ...results,
+    [searchKey]: {hits: updatedHits, page} // ({[JavaScript objects are really dictionaries]}) ==> results[javaScript] : {hits: updatedHits, page}
+  },
+  isLoading: false
+  };
+}
 
 class App extends Component {
   constructor(props) {
@@ -272,20 +287,8 @@ class App extends Component {
   setSearchTopStories(result) {
     // let's show all pages instead of the just last page
     const {hits, page} = result
-    const {searchKey, results} = this.state; // retrieve the searchKey from the component state.
-    // if the page is 0 return rmptey array ==== if the page not equal 0 return the current hits in result
-    // this time the old hits get retrieved from the results map with the searchKey as key.
-    const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
-    // concat all the old hits from the previose const with the hits witch comes back in result from last fetch
-    const updatedHits = [...oldHits, ...hits];
     //Update the state
-    this.setState({
-      results: {
-        ...results,
-        [searchKey]: {hits: updatedHits, page} // ({[JavaScript objects are really dictionaries]}) ==> results[javaScript] : {hits: updatedHits, page}
-      },
-      isLoading: false
-    });
+    this.setState(updateSearchTopStoriesState(hits, page));
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
